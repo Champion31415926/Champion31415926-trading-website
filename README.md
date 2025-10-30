@@ -7,8 +7,6 @@
 
 > A secure, interactive online marketplace for buying and selling products — with an AI-powered price trend advisory that helps users decide whether to **buy now** or **wait**.
 
----
-
 ## Table of Contents
 
 - [Project Overview](#project-overview)
@@ -25,7 +23,6 @@
 - [Contributing](#contributing)
 - [License & Contact](#license--contact)
 
----
 
 ## Project Overview
 
@@ -38,7 +35,6 @@ This project implements a full-featured online product trading website with the 
 - Operation logging for monitoring and audits
 - Optional AI module: analyzes historical prices and gives **Buy/Wait** suggestions
 
----
 
 ## Key Features
 
@@ -48,7 +44,7 @@ This project implements a full-featured online product trading website with the 
 - **Interactions**: comments, likes, favourites, notifications to sellers
 - **Operation logs**: record user/admin actions, exportable reports
 - **AI price advice**: recommend buy/wait based on predicted short-term trend
----
+
 
 ## AI Price Advisory
 The AI module (optional microservice) provides short-term directional prediction for product categories or specific SKUs and returns:
@@ -63,7 +59,7 @@ The AI module (optional microservice) provides short-term directional prediction
 3. Serve predictions through a REST endpoint.
 4. Feed user actions / realized prices back for retraining to improve accuracy.
 **Advice presentation**: always show confidence and a brief rationale to avoid overclaiming.
----
+
 ## Tech Stack
 - **Backend**: Java, Spring Boot 3, MyBatis
 - **Database**: PostgreSQL
@@ -72,7 +68,7 @@ The AI module (optional microservice) provides short-term directional prediction
 - **AI (optional)**: Python (FastAPI / Flask), TensorFlow / scikit-learn
 - **Cache / Queue**: Redis (optional)
 - **Containerization**: Docker / docker-compose
----
+
 ## Architecture & Project Layout
 /backend
 ├── src/main/java/...
@@ -99,7 +95,6 @@ The AI module (optional microservice) provides short-term directional prediction
 ├── docker-compose.yml
 └── deploy scripts
 
----
 
 ## Getting Started (Dev)
 
@@ -130,7 +125,6 @@ Make sure `src/utils/request.js` `baseURL` points to backend API (e.g., `http://
 * Train model offline with historical price data.
 * Start inference service with FastAPI / Flask exposing e.g. `POST /predict` returning JSON `{trend, recommendation, confidence, rationale}`.
 
----
 
 ## Configuration
 
@@ -161,8 +155,6 @@ jwt:
 LIMIT #{size} OFFSET ${(current - 1) * size}
 ```
 
----
-
 ## API & Database Notes
 
 * Use POST for endpoints annotated with `@PostMapping` in controllers.
@@ -178,16 +170,12 @@ LIMIT #{size} OFFSET ${(current - 1) * size}
 * For dynamic SQL building, be careful with `<choose>` and numeric expressions to avoid generating stray tokens.
 * When doing `IN` loops with `@Param("ids") List<Integer> ids`, use `<foreach collection="ids">`.
 
----
-
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feat/my-feature`)
 3. Implement and test (backend unit tests + frontend manual test)
 4. Open a PR with a clear description and linkage to issues
-
----
 
 ## License & Contact
 
