@@ -1,0 +1,112 @@
+# 🛍️ Online Product Trading Website
+
+## 📘 Overview
+
+This project is an **online trading platform** designed to enable users to buy and sell products securely and conveniently. It integrates product management, user data handling, and order tracking, while also providing **interactive community features** such as comments, likes, and favourites.
+
+Beyond basic e-commerce functionality, the system leverages **AI-driven price analysis** to predict whether specific product categories are likely to increase or decrease in price, helping users make smarter purchasing decisions.
+
+---
+
+## 🎯 Research Objectives
+
+1. **Design and develop** a full-featured website for online product trading.
+2. **Implement interactive features** such as comments, likes, and favourites to enhance user engagement.
+3. **Build an operation logging system** to track and analyse user activities for better monitoring and optimization.
+4. **Integrate an AI-based price trend analysis module** that predicts future price movements and recommends whether users should buy now or wait.
+
+---
+
+## ⚙️ Key Features
+
+### 🧩 Core Functionalities
+
+* User registration, login, and profile management
+* Product listing and detailed view
+* Order creation, payment tracking, and refund management
+* Transaction status management (Pending, Paid, Cancelled)
+
+### 💬 Interactive Features
+
+* Comment and rating system for product feedback
+* Likes and favourites for social interaction
+* Seller contact and messaging options
+
+### 🤖 AI-Enhanced Recommendation System
+
+* Analyzes **historical product prices** and **market trends** using machine learning
+* Predicts **whether a product’s price will rise or fall**
+* Provides real-time suggestions:
+
+    * 🟢 *Buy now* — if the model expects prices to rise soon
+    * 🕓 *Wait* — if prices are likely to drop
+* Continuously improves predictions through feedback and retraining
+
+### 📊 Operation Logging
+
+* Records user activities such as login, purchase, review, and refund requests
+* Provides an administrative dashboard for monitoring and data visualization
+* Enables system performance tracking and user behavior analytics
+
+---
+
+## 🧠 Technology Stack
+
+### 🔹 Backend
+
+* **Spring Boot 3** (Java 17)
+* **MyBatis + PostgreSQL** for ORM and data persistence
+* **JWT Authentication** for secure access control
+* **AI Module:** TensorFlow/Keras (Python) for price trend prediction
+
+### 🔹 Frontend
+
+* **Vue 3 + Vite** for modern, responsive UI
+* **Axios** for API communication
+* **Element Plus / TailwindCSS** for UI components
+
+### 🔹 Other Components
+
+* **Redis** – caching for session and hot data
+* **Swagger 3** – API documentation
+* **Docker** – containerized deployment
+
+---
+
+## 🧩 System Architecture
+
+```
+Frontend (Vue3)
+     │
+     ▼
+Backend API (Spring Boot)
+     │
+     ├── Controller Layer
+     ├── Service Layer
+     ├── Mapper (MyBatis)
+     ├── Model (Entity, DTO, VO)
+     │
+     ▼
+Database (PostgreSQL)
+     │
+     ▼
+AI Price Predictor (Python ML Service)
+```
+
+---
+
+## 🚀 Future Enhancements
+
+* Integrate **real-time market trend visualization**
+* Improve AI model accuracy with external data sources (e.g., commodity indexes, seasonal demand)
+* Add **user-to-user chat** and **seller reputation scoring**
+* Support **multi-language and multi-currency transactions**
+
+---
+
+## 👨‍💻 Author
+
+**Project Lead:** Chen Pinyan
+**Project Title:** *Online Product Trading Website*
+**Category:** Web Application + AI Integration
+
