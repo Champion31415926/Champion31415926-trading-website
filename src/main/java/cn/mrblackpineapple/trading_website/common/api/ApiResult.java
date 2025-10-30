@@ -1,7 +1,6 @@
 package cn.mrblackpineapple.trading_website.common.api;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
