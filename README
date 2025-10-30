@@ -1,130 +1,195 @@
-Online Product Trading Website
+# Online Product Trading Website
 
-Overview
-This project is an online trading platform that enables users to buy and sell products securely and conveniently. It manages product catalogues, user profiles, orders and supports community interactions (comments, likes, favourites). The system also includes an AI-based price trend analysis module that predicts short-term direction of prices for certain product categories and gives buy/wait recommendations.
+[![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue)](#)
+[![Java](https://img.shields.io/badge/java-21-orange)](#)
+[![Vue](https://img.shields.io/badge/vue-3-brightgreen)](#)
 
-Research Objectives
+> A secure, interactive online marketplace for buying and selling products — with an AI-powered price trend advisory that helps users decide whether to **buy now** or **wait**.
 
-1. To design and develop a full-featured website for online product trading.
-2. To implement interactive features including comments, likes, and favourites to boost engagement.
-3. To build an operation logging system that tracks and analyses user activities for monitoring and improvement.
+---
 
-Key Features
-Core
+## Table of Contents
 
-* User registration, authentication (JWT), and profile management.
-* Product listing, detailed product pages, create/edit product flows.
-* Order creation, payment tracking, refund handling, and status transitions (1: Pending payment; 2: Paid; 3: Cancelled).
+- [Project Overview](#project-overview)
+- [Key Features](#key-features)
+- [AI Price Advisory](#ai-price-advisory)
+- [Tech Stack](#tech-stack)
+- [Architecture & Project Layout](#architecture--project-layout)
+- [Getting Started (Dev)](#getting-started-dev)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+  - [AI Service (optional)](#ai-service-optional)
+- [Configuration](#configuration)
+- [API & Database Notes](#api--database-notes)
+- [Contributing](#contributing)
+- [License & Contact](#license--contact)
 
-Interaction
+---
 
-* Comment and rating system for products.
-* Like and favourite (bookmark) functionality.
-* Message/notification for sellers (e.g., when someone likes a product).
+## Project Overview
 
-AI-powered Price Advice
+This project implements a full-featured online product trading website with the following capabilities:
 
-* Module ingests historical price series for a chosen category or product (from site data and optionally external sources).
-* Uses machine learning models to estimate short-term trends (rise / fall) and confidence.
-* Outputs human-readable advice:
+- Product listing and management
+- User accounts and JWT authentication
+- Order lifecycle management (1 = Pending Payment, 2 = Paid, 3 = Cancelled)
+- Interactive features: comments, likes, favourites
+- Operation logging for monitoring and audits
+- Optional AI module: analyzes historical prices and gives **Buy/Wait** suggestions
 
-  * "BUY NOW" if predicted upward movement with sufficient confidence.
-  * "WAIT" if predicted downward movement or model uncertainty.
-  * Each advice includes a confidence score and a brief rationale (e.g., "recent upward trend + low supply").
-* Feedback loop: user actions (buys/sells) and later realized prices feed back to retrain the model and improve accuracy.
+---
 
-Operation Logging & Monitoring
+## Key Features
 
-* Logs critical user actions: login, product publish/edit, order events, comments, likes, admin actions.
-* Admin dashboard to view operation logs, filter by user/action/time and export reports.
-* Enables security audit and behavioural analytics.
+- **User management** (register / login / profile)
+- **Product CRUD** with images, categories, and search
+- **Order system**: create orders, track status, refunds
+- **Interactions**: comments, likes, favourites, notifications to sellers
+- **Operation logs**: record user/admin actions, exportable reports
+- **AI price advice**: recommend buy/wait based on predicted short-term trend
+---
 
-Technology Stack
-Backend
+## AI Price Advisory
+The AI module (optional microservice) provides short-term directional prediction for product categories or specific SKUs and returns:
+- `trend`: `UP` | `DOWN` | `STABLE`
+- `recommendation`: `BUY_NOW` | `WAIT` | `NO_DECISION`
+- `confidence`: numeric score (0.0 - 1.0)
+- `rationale`: short human-readable explanation
 
-* Java + Spring Boot 3
-* MyBatis for SQL mapping
-* PostgreSQL as primary database
-* JWT for authentication
-* Redis for caching (optional)
+**How it works (high level)**
+1. Collect historical price series and relevant features (moving averages, listing counts, seasonality).
+2. Train a model (e.g., LSTM / Transformer / tree-based ensemble) offline.
+3. Serve predictions through a REST endpoint.
+4. Feed user actions / realized prices back for retraining to improve accuracy.
+**Advice presentation**: always show confidence and a brief rationale to avoid overclaiming.
+---
+## Tech Stack
+- **Backend**: Java, Spring Boot 3, MyBatis
+- **Database**: PostgreSQL
+- **Auth**: JWT
+- **Frontend**: Vue 3 (Vite), Axios, Element Plus / Tailwind CSS
+- **AI (optional)**: Python (FastAPI / Flask), TensorFlow / scikit-learn
+- **Cache / Queue**: Redis (optional)
+- **Containerization**: Docker / docker-compose
+---
+## Architecture & Project Layout
+/backend
+├── src/main/java/...
+│   ├── controller
+│   ├── service
+│   ├── mapper         (MyBatis interfaces)
+│   ├── model / dto / vo
+│   ├── config
+│   └── aspect
+└── resources/mapper/*.xml
+/frontend
+├── src/
+│   ├── views/
+│   ├── components/
+│   ├── router/
+│   ├── store/
+│   └── utils/request.js (axios instance)
 
-Frontend
+/ai (optional)
+├── training/
+└── inference_service/
 
-* Vue 3 (Vite)
-* Axios for API calls
-* UI: Element Plus or Tailwind components
+/infra
+├── docker-compose.yml
+└── deploy scripts
 
-AI Service
+---
 
-* Python (Flask/FastAPI) microservice or separate pipeline
-* TensorFlow / Keras or scikit-learn for model training and inference
-* Data ETL to prepare historical pricing features
+## Getting Started (Dev)
 
-DevOps & Tools
+### Backend
+1. Set up PostgreSQL and create a database (e.g., `trading_website`).
+2. Configure `application.yml` or `application.properties` with DB URL, user, password, and JWT secret.
+3. Build & run:
+```bash
+# from backend root
+mvn clean package
+java -jar target/{your-app}.jar
+````
 
-* Docker (containerized services)
-* Swagger for API docs
-* GitHub for source control
+> Note: this project uses a context path (optional). If you set `server.servlet.context-path`, make controllers use relative paths (e.g., `@RequestMapping("/interaction")`) to avoid double-prefix issues.
 
-Project Structure (high level)
+### Frontend
 
-* backend/
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-  * src/main/java/... (controllers, services, mappers, models, config, aspects)
-  * resources/mapper/*.xml (MyBatis)
-* frontend/
+Make sure `src/utils/request.js` `baseURL` points to backend API (e.g., `http://localhost:21090/api/trading-website/v1.0`).
 
-  * src/ (views, components, router, store, utils)
-* ai/
+### AI Service (optional)
 
-  * model_training/ (training scripts)
-  * inference_service/ (REST API for predictions)
-* infra/
+* Train model offline with historical price data.
+* Start inference service with FastAPI / Flask exposing e.g. `POST /predict` returning JSON `{trend, recommendation, confidence, rationale}`.
 
-  * docker-compose.yml
-  * deployment scripts
+---
 
-Installation (development)
+## Configuration
 
-1. Start PostgreSQL and create the project database.
-2. Configure application properties (DB URL, credentials, JWT secret).
-3. Build and run backend:
+Place common settings in `application.yml`:
 
-   * mvn clean package
-   * java -jar target/your-app.jar
-4. Start frontend dev server:
+```yaml
+server:
+  port: 21090
+  servlet:
+    context-path: /api/trading-website/v1.0
 
-   * cd frontend
-   * npm install
-   * npm run dev
-5. (Optional) Start AI inference service for price predictions.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/trading_website
+    username: your_user
+    password: your_password
 
-Usage
+jwt:
+  secret: your_jwt_secret
+  expire: 86400
+```
 
-* Register and login as normal user.
-* Add products, browse listings, like / favourite / comment.
-* Place an order and follow status updates.
-* On product pages or category pages, view AI price advice block showing predicted trend and recommendation.
+**CORS**: enable global CORS for dev (allow `http://localhost:21091`).
 
-Data and Model Notes
+**Pagination**: pass `current` as page number and `size` as page size; in MyBatis XML use:
 
-* AI model requires sufficient historical price data. Start with offline batch training and expose inference via a REST endpoint.
-* Use features such as moving averages, price returns, seasonality, listing counts, and external signals if available.
-* Present model confidence and avoid overclaiming accuracy — show probability and explainability where possible.
+```xml
+LIMIT #{size} OFFSET ${(current - 1) * size}
+```
 
-Security & Privacy
+---
 
-* Protect user data, hash passwords with BCrypt, validate inputs, and use HTTPS in production.
-* Log only necessary personal data and comply with applicable privacy regulations.
+## API & Database Notes
 
-Contributing
+* Use POST for endpoints annotated with `@PostMapping` in controllers.
+* Keep numeric-state columns (e.g., `trade_status`) as `smallint`/`integer` and compare with numeric literals (`= 1`, `= 2`) — do **not** compare `smallint` to boolean (`= true`) in PostgreSQL.
+* Example order statuses:
 
-* Fork repo, create feature branch, open pull request.
-* Follow coding conventions and include unit tests for new backend features.
-* Update documentation and AI training notes when changing model inputs.
+  * `1` = Pending payment
+  * `2` = Paid
+  * `3` = Cancelled
 
-Contact
-Email: 2470865290@qq.com
+**MyBatis tips**
 
-License
-Specify your preferred license (e.g., MIT, Apache-2.0) and add LICENSE file.
+* For dynamic SQL building, be careful with `<choose>` and numeric expressions to avoid generating stray tokens.
+* When doing `IN` loops with `@Param("ids") List<Integer> ids`, use `<foreach collection="ids">`.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Implement and test (backend unit tests + frontend manual test)
+4. Open a PR with a clear description and linkage to issues
+
+---
+
+## License & Contact
+
+* License: MIT (or choose your preferred license)
+* Project Lead: Chen Pinyan - 2470865290@qq.com
