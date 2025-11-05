@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="cn.mrblackpineapple.trading_website.model.User">
+        <id column="id" property="id"/>
+        <result column="useraccount" property="userAccount"/>
+        <result column="username" property="userName"/>
+        <result column="userpwd" property="userPwd"/>
+        <result column="useravatar" property="userAvatar"/>
+        <result column="useremail" property="userEmail"/>
+        <result column="userrole" property="userRole"/>
+        <result column="islogin" property="isLogin"/>
+        <result column="isword" property="isWord"/>
+        <result column="lastlogintime" property="lastLoginTime"/>
+        <result column="createtime" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.mrblackpineapple.trading_website.model.User"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO "user" (useraccount, username, userpwd, useravatar, useremail, userrole, islogin, isword, lastlogintime, createtime)
+        VALUES (#{userAccount}, #{userName}, #{userPwd}, #{userAvatar}, #{userEmail}, #{userRole}, #{isLogin}, #{isWord}, #{lastLoginTime}, #{createTime})
+    </insert>
+
+    <update id="update" parameterType="cn.mrblackpineapple.trading_website.model.User">
+        UPDATE "user"
+        <set>
+            <if test="userAccount != null">useraccount = #{userAccount},</if>
+            <if test="userName != null">username = #{userName},</if>
+            <if test="userPwd != null">userpwd = #{userPwd},</if>
+            <if test="userAvatar != null">useravatar = #{userAvatar},</if>
+            <if test="userEmail != null">useremail = #{userEmail},</if>
+            <if test="isLogin != null">islogin = #{isLogin},</if>
+            <if test="isWord != null">isword = #{isWord},</if>
+            <if test="userRole != null">userrole = #{userRole},</if>
+            <if test="lastLoginTime != null">lastlogintime = #{lastLoginTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM "user" WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getByActive" resultMap="BaseResultMap">
+        SELECT u.*
+        FROM "user" u
+        <where>
+            <if test="id != null">AND u.id = #{id}</if>
+            <if test="userName != null and userName != ''">AND u.username = #{userName}</if>
+            <if test="userAccount != null and userAccount != ''">AND u.useraccount = #{userAccount}</if>
+        </where>
+    </select>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT u.*
+        FROM "user" u
+        <where>
+            <if test="userAccount != null and userAccount != ''">AND u.useraccount LIKE CONCAT('%', #{userAccount}, '%')</if>
+            <if test="userName != null and userName != ''">AND u.username LIKE CONCAT('%', #{userName}, '%')</if>
+            <if test="userEmail != null and userEmail != ''">AND u.useremail LIKE CONCAT('%', #{userEmail}, '%')</if>
+            <if test="role != null">AND u.userrole = #{role}</if>
+            <if test="isLogin != null">AND u.islogin = #{isLogin}</if>
+            <if test="isWord != null">AND u.isword = #{isWord}</if>
+            <if test="startTime != null and endTime != null">AND u.createtime BETWEEN #{startTime} AND #{endTime}</if>
+        </where>
+        ORDER BY u.createtime DESC
+        <if test="current != null and size != null">
+            LIMIT #{size} OFFSET
+            <choose>
+                <when test="current &gt; 1">${(current - 1) * size}</when>
+                <otherwise>0</otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="integer">
+        SELECT COUNT(*) FROM "user" u
+        <where>
+            <if test="userAccount != null and userAccount != ''">AND u.useraccount LIKE CONCAT('%', #{userAccount}, '%')</if>
+            <if test="userName != null and userName != ''">AND u.username LIKE CONCAT('%', #{userName}, '%')</if>
+            <if test="userEmail != null and userEmail != ''">AND u.useremail LIKE CONCAT('%', #{userEmail}, '%')</if>
+            <if test="role != null">AND u.userrole = #{role}</if>
+            <if test="isLogin != null">AND u.islogin = #{isLogin}</if>
+            <if test="isWord != null">AND u.isword = #{isWord}</if>
+            <if test="startTime != null and endTime != null">AND u.createtime BETWEEN #{startTime} AND #{endTime}</if>
+        </where>
+    </select>
+
+</mapper>
