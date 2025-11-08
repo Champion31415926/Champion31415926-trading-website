@@ -21,13 +21,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run tests (H2)
-        run: mvn -B clean verify "-Dspring.profiles.active=test" --file pom.xml
+      - name: Run tests (H2 profile)
+        env:
+          SPRING_PROFILES_ACTIVE: test
+        run: mvn -B clean verify --file pom.xml
 
       - name: Build artifact
+        if: success()
         run: mvn -B package -DskipTests --file pom.xml
 
       - name: Upload build artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: trading-website-jar
