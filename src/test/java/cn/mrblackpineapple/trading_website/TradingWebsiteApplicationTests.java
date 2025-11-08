@@ -1,13 +1,12 @@
 package cn.mrblackpineapple.trading_website;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-class TradingWebsiteApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
+@ActiveProfiles("test")
+public class TradingWebsiteApplicationTests {
+    @org.junit.jupiter.api.Test
+    void contextLoads() {
+    }
 }

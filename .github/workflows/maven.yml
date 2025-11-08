@@ -31,13 +31,20 @@ jobs:
       - name: Print surefire reports (if any)
         if: always()
         run: |
-          echo "---- LS target/surefire-reports ----"
-          ls -la target/surefire-reports || true
-          echo "---- Dumping files ----"
-          for f in target/surefire-reports/*.txt; do
-            echo "===== $f ====="
-            sed -n '1,300p' "$f" || true
-          done
+          REPORT_DIR=target/surefire-reports
+          echo "---- LS $REPORT_DIR ----"
+          if [ -d "$REPORT_DIR" ]; then
+            ls -la "$REPORT_DIR"
+            for f in "$REPORT_DIR"/*.txt; do
+              if [ -f "$f" ]; then
+                echo "===== $f ====="
+                sed -n '1,300p' "$f"
+              fi
+            done
+          else
+            echo "$REPORT_DIR does not exist."
+          fi
+
 
       - name: Upload test reports (artifact)
         if: always()
