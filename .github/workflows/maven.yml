@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SPRING_PROFILES_ACTIVE: test
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -21,18 +24,24 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run tests (H2 profile)
-        env:
-          SPRING_PROFILES_ACTIVE: test
-        run: mvn -B clean verify --file pom.xml
+      - name: Run tests (H2)
+        id: mvn-test
+        run: mvn -B -e clean verify "-Dspring.profiles.active=test" --file pom.xml
 
-      - name: Build artifact
-        if: success()
-        run: mvn -B package -DskipTests --file pom.xml
+      - name: Print surefire reports (if any)
+        if: always()
+        run: |
+          echo "---- LS target/surefire-reports ----"
+          ls -la target/surefire-reports || true
+          echo "---- Dumping files ----"
+          for f in target/surefire-reports/*.txt; do
+            echo "===== $f ====="
+            sed -n '1,300p' "$f" || true
+          done
 
-      - name: Upload build artifact
-        if: success()
+      - name: Upload test reports (artifact)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: trading-website-jar
-          path: target/*.jar
+          name: surefire-reports
+          path: target/surefire-reports
