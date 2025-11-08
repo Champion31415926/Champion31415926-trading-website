@@ -6,8 +6,14 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: embedded
 
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
