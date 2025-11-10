@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="cn.mrblackpineapple.trading_website.vo.ProductVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="detail" property="detail"/>
+        <result column="coverlist" property="coverList"/>
+        <result column="oldlevel" property="oldLevel"/>
+        <result column="categoryid" property="categoryId"/>
+        <result column="userid" property="userId"/>
+        <result column="inventory" property="inventory"/>
+        <result column="price" property="price"/>
+        <result column="isbargain" property="isBargain"/>
+        <result column="createtime" property="createTime"/>
+        <result column="username" property="userName"/>
+        <result column="useravatar" property="userAvatar"/>
+        <result column="categoryname" property="categoryName"/>
+        <result column="likenumber" property="likeNumber"/>
+        <result column="savenumber" property="saveNumber"/>
+        <result column="viewnumber" property="viewNumber"/>
+    </resultMap>
+
+    <insert id="save">
+        INSERT INTO "product" (name, detail, coverlist, oldlevel, categoryid, userid, inventory, price, isbargain, createtime)
+        VALUES (#{name}, #{detail}, #{coverList}, #{oldLevel}, #{categoryId}, #{userId}, #{inventory}, #{price}, #{isBargain}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE "product"
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="detail != null and detail != ''">detail = #{detail},</if>
+            <if test="coverList != null and coverList != ''">coverlist = #{coverList},</if>
+            <if test="oldLevel != null">oldlevel = #{oldLevel},</if>
+            <if test="categoryId != null">categoryid = #{categoryId},</if>
+            <if test="inventory != null">inventory = #{inventory},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="isBargain != null">isbargain = #{isBargain},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM "product"
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT p.*, u.username, u.useravatar, c.name AS categoryname,
+        (SELECT COUNT(i1.id) FROM interaction i1 WHERE i1.productid = p.id AND type = 3) AS likenumber,
+        (SELECT COUNT(i2.id) FROM interaction i2 WHERE i2.productid = p.id AND type = 1) AS savenumber,
+        (SELECT COUNT(i3.id) FROM interaction i3 WHERE i3.productid = p.id AND type = 2) AS viewnumber
+        FROM "product" p
+        LEFT JOIN "user" u ON u.id = p.userid
+        LEFT JOIN category c ON c.id = p.categoryid
+        <where>
+            <if test="id != null">AND p.id = #{id}</if>
+            <if test="name != null and name != ''">AND p.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="categoryId != null">AND p.categoryid = #{categoryId}</if>
+            <if test="userId != null">AND p.userid = #{userId}</if>
+            <if test="isBargain != null">AND p.isbargain = #{isBargain}</if>
+            <if test="startTime != null and endTime != null">AND p.createtime BETWEEN #{startTime} AND #{endTime}</if>
+        </where>
+        ORDER BY p.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{size} OFFSET
+            <choose>
+                <when test="current &gt; 1">
+                    ${(current - 1) * size}
+                </when>
+                <otherwise>0</otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="integer">
+        SELECT COUNT(*) FROM "product" p
+        <where>
+            <if test="id != null">AND p.id = #{id}</if>
+            <if test="name != null and name != ''">AND p.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="categoryId != null">AND p.categoryid = #{categoryId}</if>
+            <if test="userId != null">AND p.userid = #{userId}</if>
+            <if test="isBargain != null">AND p.isbargain = #{isBargain}</if>
+            <if test="startTime != null and endTime != null">AND p.createtime BETWEEN #{startTime} AND #{endTime}</if>
+        </where>
+    </select>
+
+    <select id="queryProductIds" resultType="java.lang.Integer">
+        SELECT p.id FROM "product" p WHERE p.userid = #{userId}
+    </select>
+
+    <!-- 单个商品查询 -->
+    <select id="queryById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        SELECT p.*, u.username, u.useravatar, c.name AS categoryname,
+               (SELECT COUNT(i1.id) FROM interaction i1 WHERE i1.productid = p.id AND type = 3) AS likenumber,
+               (SELECT COUNT(i2.id) FROM interaction i2 WHERE i2.productid = p.id AND type = 1) AS savenumber,
+               (SELECT COUNT(i3.id) FROM interaction i3 WHERE i3.productid = p.id AND type = 2) AS viewnumber
+        FROM "product" p
+                 LEFT JOIN "user" u ON u.id = p.userid
+                 LEFT JOIN category c ON c.id = p.categoryid
+        WHERE p.id = #{id}
+    </select>
+
+    <!-- 批量商品查询 -->
+    <select id="queryProductList" resultMap="BaseResultMap" parameterType="list">
+        <if test="ids != null and ids.size() > 0">
+            SELECT p.*, u.username, u.useravatar, c.name AS categoryname
+            FROM "product" p
+            LEFT JOIN "user" u ON u.id = p.userid
+            LEFT JOIN category c ON c.id = p.categoryid
+            WHERE p.id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="ids == null or ids.size() == 0">
+            SELECT p.*, u.username, u.useravatar, c.name AS categoryname
+            FROM "product" p
+            LEFT JOIN "user" u ON u.id = p.userid
+            LEFT JOIN category c ON c.id = p.categoryid
+            WHERE 1=0
+        </if>
+    </select>
+
+</mapper>
