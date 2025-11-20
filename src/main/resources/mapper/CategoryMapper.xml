@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.CategoryMapper">
+    <resultMap id="BaseResultMap" type="cn.mrblackpineapple.trading_website.model.Category">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="isuse" property="isUse"/>
+    </resultMap>
+
+    <insert id="save">
+        INSERT INTO category (name, isuse) VALUES (#{name}, #{isUse})
+    </insert>
+
+    <update id="update" parameterType="cn.mrblackpineapple.trading_website.model.Category">
+        UPDATE category
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="isUse != null">isuse = #{isUse},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM category WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap" parameterType="cn.mrblackpineapple.trading_website.dto.CategoryRequest">
+        SELECT c.id, c.name, c.isuse FROM category c
+        <where>
+            <if test="name != null and name != ''">AND c.name LIKE concat('%', #{name}, '%')</if>
+            <if test="isUse != null">AND c.isuse = #{isUse}</if>
+        </where>
+        ORDER BY c.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{size} OFFSET GREATEST((#{current}-1)*#{size}, 0)
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="integer" parameterType="cn.mrblackpineapple.trading_website.dto.CategoryRequest">
+        SELECT COUNT(*) FROM category
+        <where>
+            <if test="name != null and name != ''">AND name LIKE concat('%', #{name}, '%')</if>
+            <if test="isUse != null">AND isuse = #{isUse}</if>
+        </where>
+    </select>
+</mapper>
