@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.EvaluationsUpvoteMapper">
+
+    <insert id="save">
+        INSERT INTO evaluationsupvote (userid, evaluationsid)
+        VALUES (#{userId}, #{evaluationsId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM evaluationsupvote
+        WHERE userid = #{userId} AND evaluationsid = #{evaluationsId}
+    </delete>
+
+    <select id="queryCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM evaluationsupvote eu
+        <where>
+            <if test="id != null">
+                AND eu.id = #{id}
+            </if>
+            <if test="userId != null">
+                AND eu.userid = #{userId}
+            </if>
+            <if test="evaluationsId != null">
+                AND eu.evaluationsid = #{evaluationsId}
+            </if>
+        </where>
+    </select>
+
+</mapper>
