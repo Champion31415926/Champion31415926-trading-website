@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.EvaluationsMapper">
+
+    <resultMap id="commentParentResultMap" type="cn.mrblackpineapple.trading_website.vo.CommentParentVO">
+        <id property="id" column="id"/>
+        <result property="userId" column="userid"/>
+        <result property="userName" column="username"/>
+        <result property="userAvatar" column="useravatar"/>
+        <result property="content" column="content"/>
+        <result property="childTotal" column="childtotal"/>
+        <result property="createTime" column="createtime" javaType="java.time.LocalDateTime" jdbcType="TIMESTAMP"/>
+        <collection property="commentChildVOS"
+                    ofType="cn.mrblackpineapple.trading_website.vo.CommentChildVO"
+                    column="{id=id,userId=user_id_param}"
+                    select="getChildCommentsByParentId"/>
+    </resultMap>
+
+    <select id="getParentComments" resultMap="commentParentResultMap">
+        SELECT e.id AS id,
+        e.content AS content,
+        e.createtime AS createtime,
+        u.id AS userid,
+        u.username,
+        u.useravatar,
+        (SELECT COUNT(*) FROM evaluations ev WHERE ev.parentid = e.id) AS childtotal,
+        (SELECT COUNT(*) FROM evaluationsupvote eu WHERE eu.userid = #{userId} AND eu.evaluationsid = e.id) AS upvoteFlag,
+        (SELECT COUNT(*) FROM evaluationsupvote eu WHERE eu.evaluationsid = e.id) AS upvoteCount,
+        #{userId} AS user_id_param
+        FROM evaluations e
+        LEFT JOIN "user" u ON u.id = e.commenterid
+        WHERE e.contentid = #{contentId}
+        AND e.contenttype = #{contentType}
+        AND e.parentid IS NULL
+        ORDER BY e.id DESC
+    </select>
+
+    <select id="getChildCommentsByParentId" resultType="cn.mrblackpineapple.trading_website.vo.CommentChildVO">
+        SELECT e.id AS id,
+        e.content AS content,
+        e.createtime AS createTime,
+        e.parentid AS parentId,
+        u.id AS userId,
+        (SELECT COUNT(*) FROM evaluationsupvote eu WHERE eu.userid = #{userId} AND eu.evaluationsid = e.id) AS upvoteFlag,
+        (SELECT COUNT(*) FROM evaluationsupvote eu WHERE eu.evaluationsid = e.id) AS upvoteCount,
+        u.username AS userName,
+        u.useravatar AS userAvatar,
+        u1.id AS replierId,
+        u1.username AS replierName,
+        u1.useravatar AS replierAvatar
+        FROM evaluations e
+        LEFT JOIN "user" u ON u.id = e.commenterid
+        LEFT JOIN "user" u1 ON u1.id = e.replierid
+        WHERE e.parentid = #{id}
+        AND e.parentid IS NOT NULL
+        ORDER BY e.id DESC
+    </select>
+
+    <select id="query" resultType="cn.mrblackpineapple.trading_website.vo.CommentChildVO">
+        SELECT e.id AS id,
+        e.content AS content,
+        e.createtime AS createTime,
+        e.parentid AS parentId,
+        e.contenttype AS contentType,
+        u.id AS userId,
+        u.username AS userName,
+        (SELECT COUNT(*) FROM evaluationsupvote eu WHERE eu.userid = #{userId} AND eu.evaluationsid = e.id) AS upvoteFlag,
+        (SELECT COUNT(*) FROM evaluationsupvote eu WHERE eu.evaluationsid = e.id) AS upvoteCount,
+        u.useravatar AS userAvatar,
+        u1.id AS replierId,
+        u1.username AS replierName,
+        u1.useravatar AS replierAvatar
+        FROM evaluations e
+        LEFT JOIN "user" u ON u.id = e.commenterid
+        LEFT JOIN "user" u1 ON u1.id = e.replierid
+        <where>
+            <if test="contentType != null and contentType != ''">
+                AND e.contenttype = #{contentType}
+            </if>
+            <if test="content != null and content != ''">
+                AND e.content LIKE '%' || #{content} || '%'
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND e.createtime BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY e.createtime DESC
+        <if test="current != null and size != null">
+            LIMIT #{size} OFFSET #{current}
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM evaluations e
+        <where>
+            <if test="contentType != null and contentType != ''">
+                AND e.contenttype LIKE '%' || #{contentType} || '%'
+            </if>
+            <if test="content != null and content != ''">
+                AND e.content LIKE '%' || #{content} || '%'
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND e.createtime BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM evaluations
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="save">
+        INSERT INTO evaluations(parentid, commenterid, replierid, contenttype, contentid, content, createtime)
+        VALUES (#{parentId}, #{commenterId}, #{replierId}, #{contentType}, #{contentId}, #{content}, #{createTime})
+    </insert>
+
+    <select id="selectChildComments" parameterType="list" resultType="Integer">
+        SELECT e.id
+        FROM evaluations e
+        WHERE e.parentid IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="totalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM evaluations e
+        WHERE e.contentid = #{contentId}
+          AND e.contenttype = #{contentType}
+    </select>
+
+</mapper>
