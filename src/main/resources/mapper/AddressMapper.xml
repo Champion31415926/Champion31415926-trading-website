@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.AddressMapper">
+    <resultMap id="BaseResultMap" type="cn.mrblackpineapple.trading_website.model.Address">
+        <id column="id" property="id"/>
+        <result column="userid" property="userId"/>
+        <result column="contactperson" property="contactPerson"/>
+        <result column="addressdetail" property="addressDetail"/>
+        <result column="contactphone" property="contactPhone"/>
+        <result column="isdefault" property="isDefault"/>
+    </resultMap>
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO address (userid, contactperson, addressdetail, contactphone, isdefault)
+        VALUES (#{userId}, #{contactPerson}, #{addressDetail}, #{contactPhone}, #{isDefault})
+    </insert>
+    <update id="update">
+        UPDATE address
+        <set>
+            <if test="userId != null">userid = #{userId},</if>
+            <if test="contactPerson != null and contactPerson != ''">contactperson = #{contactPerson},</if>
+            <if test="addressDetail != null and addressDetail != ''">addressdetail = #{addressDetail},</if>
+            <if test="contactPhone != null and contactPhone != ''">contactphone = #{contactPhone},</if>
+            <if test="isDefault != null">isdefault = #{isDefault},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM address WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="query" resultMap="BaseResultMap">
+        SELECT a.* FROM address a
+        <where>
+            <if test="userId != null">AND a.userid = #{userId}</if>
+            <if test="contactPerson != null and contactPerson != ''">AND a.contactperson LIKE concat('%', #{contactPerson}, '%')</if>
+            <if test="addressDetail != null and addressDetail != ''">AND a.addressdetail LIKE concat('%', #{addressDetail}, '%')</if>
+            <if test="isDefault != null">AND a.isdefault = #{isDefault}</if>
+        </where>
+        ORDER BY a.isdefault DESC, a.id DESC
+        <if test="size != null and offset != null">
+            LIMIT #{size} OFFSET #{offset}
+        </if>
+    </select>
+    <select id="queryCount" resultType="integer">
+        SELECT COUNT(*) FROM address a
+        <where>
+            <if test="userId != null">AND a.userid = #{userId}</if>
+            <if test="contactPerson != null and contactPerson != ''">AND a.contactperson LIKE concat('%', #{contactPerson}, '%')</if>
+            <if test="addressDetail != null and addressDetail != ''">AND a.addressdetail LIKE concat('%', #{addressDetail}, '%')</if>
+            <if test="isDefault != null">AND a.isdefault = #{isDefault}</if>
+        </where>
+    </select>
+</mapper>
