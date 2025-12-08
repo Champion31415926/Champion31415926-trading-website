@@ -35,7 +35,7 @@
         </where>
         ORDER BY c.id DESC
         <if test="current != null and size != null">
-            LIMIT #{size} OFFSET GREATEST((#{current}-1)*#{size}, 0)
+            LIMIT #{size} OFFSET #{current}
         </if>
     </select>
 
