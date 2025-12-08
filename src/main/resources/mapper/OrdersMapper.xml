@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.mrblackpineapple.trading_website.mapper.OrdersMapper">
+
+    <resultMap id="BaseResultMap" type="cn.mrblackpineapple.trading_website.vo.OrdersVO">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="detail" property="detail"/>
+        <result column="userid" property="userId"/>
+        <result column="productid" property="productId"/>
+        <result column="buyprice" property="buyPrice"/>
+        <result column="buynumber" property="buyNumber"/>
+        <result column="tradestatus" property="tradeStatus"/>
+        <result column="tradetime" property="tradeTime"/>
+        <result column="refundstatus" property="refundStatus"/>
+        <result column="refundtime" property="refundTime"/>
+        <result column="isrefundconfirm" property="isRefundConfirm"/>
+        <result column="isconfirmtime" property="isConfirmTime"/>
+        <result column="isconfirm" property="isConfirm"/>
+        <result column="createtime" property="createTime"/>
+        <result column="username" property="userName"/>
+        <result column="useravatar" property="userAvatar"/>
+        <result column="producttitle" property="productTitle"/>
+        <result column="productcover" property="productCover"/>
+        <result column="addressid" property="addressId"/>
+        <result column="contactperson" property="contactPerson"/>
+        <result column="contactphone" property="contactPhone"/>
+        <result column="addressdetail" property="addressDetail"/>
+        <result column="sellercontactname" property="sellerContactName"/>
+        <result column="sellercontactphone" property="sellerContactPhone"/>
+        <result column="selleraddressdetail" property="sellerAddressDetail"/>
+        <result column="isdeliver" property="isDeliver"/>
+        <result column="delivertime" property="deliverTime"/>
+        <result column="deliveradrid" property="deliverAdrId"/>
+    </resultMap>
+
+    <insert id="save">
+        INSERT INTO "orders" (code, detail, userid, productid, buyprice, buynumber, tradestatus, tradetime,
+                              refundstatus, refundtime, isrefundconfirm, isconfirmtime, isconfirm, addressid,
+                              isdeliver, delivertime, deliveradrid, createtime)
+        VALUES (#{code}, #{detail}, #{userId}, #{productId}, #{buyPrice}, #{buyNumber}, #{tradeStatus}, #{tradeTime},
+                #{refundStatus}, #{refundTime}, #{isRefundConfirm}, #{isConfirmTime}, #{isConfirm}, #{addressId},
+                #{isDeliver}, #{deliverTime}, #{deliverAdrId}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE "orders"
+        <set>
+            <if test="detail != null and detail != ''">detail = #{detail},</if>
+            <if test="buyPrice != null">buyprice = #{buyPrice},</if>
+            <if test="buyNumber != null">buynumber = #{buyNumber},</if>
+            <if test="tradeStatus != null">tradestatus = #{tradeStatus},</if>
+            <if test="tradeTime != null">tradetime = #{tradeTime},</if>
+            <if test="refundStatus != null">refundstatus = #{refundStatus},</if>
+            <if test="refundTime != null">refundtime = #{refundTime},</if>
+            <if test="isRefundConfirm != null">isrefundconfirm = #{isRefundConfirm},</if>
+            <if test="isConfirmTime != null">isconfirmtime = #{isConfirmTime},</if>
+            <if test="isConfirm != null">isconfirm = #{isConfirm},</if>
+            <if test="addressId != null">addressid = #{addressId},</if>
+            <if test="isDeliver != null">isdeliver = #{isDeliver},</if>
+            <if test="deliverTime != null">delivertime = #{deliverTime},</if>
+            <if test="deliverAdrId != null">deliveradrid = #{deliverAdrId},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM "orders" WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT o.*,
+        u.username,
+        u.useravatar,
+        p.name AS producttitle,
+        p.coverlist AS productcover,
+        ad.contactperson AS contactperson,
+        ad.contactphone AS contactphone,
+        ad.addressdetail AS addressdetail,
+        ad1.contactperson AS sellercontactname,
+        ad1.contactphone AS sellercontactphone,
+        ad1.addressdetail AS selleraddressdetail
+        FROM "orders" o
+        LEFT JOIN "user" u ON u.id = o.userid
+        LEFT JOIN product p ON p.id = o.productid
+        LEFT JOIN address ad ON ad.id = o.addressid
+        LEFT JOIN product pt ON pt.id = o.productid
+        LEFT JOIN "user" u1 ON pt.userid = u1.id
+        LEFT JOIN address ad1 ON ad1.userid = u1.id AND ad1.isdefault = true
+        <where>
+            <if test="code != null and code != ''">AND o.code LIKE CONCAT('%', #{code}, '%')</if>
+            <if test="detail != null and detail != ''">AND o.detail LIKE CONCAT('%', #{detail}, '%')</if>
+            <if test="userId != null">AND o.userid = #{userId}</if>
+            <if test="productId != null">AND o.productid = #{productId}</if>
+            <if test="tradeStatus != null">AND o.tradestatus = #{tradeStatus}</if>
+            <if test="refundStatus != null">AND o.refundstatus = #{refundStatus}</if>
+            <if test="startTime != null and endTime != null">AND o.createtime BETWEEN #{startTime} AND #{endTime}</if>
+        </where>
+        ORDER BY o.createtime DESC
+        <if test="current != null and size != null">LIMIT #{size} OFFSET #{current}</if>
+    </select>
+
+    <select id="queryCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM "orders" o
+        <where>
+            <if test="code != null and code != ''">AND o.code LIKE CONCAT('%', #{code}, '%')</if>
+            <if test="detail != null and detail != ''">AND o.detail LIKE CONCAT('%', #{detail}, '%')</if>
+            <if test="userId != null">AND o.userid = #{userId}</if>
+            <if test="productId != null">AND o.productid = #{productId}</if>
+            <if test="tradeStatus != null">AND o.tradestatus = #{tradeStatus}</if>
+            <if test="refundStatus != null">AND o.refundstatus = #{refundStatus}</if>
+            <if test="startTime != null and endTime != null">AND o.createtime BETWEEN #{startTime} AND #{endTime}</if>
+        </where>
+    </select>
+
+    <select id="queryByProductIds" resultMap="BaseResultMap">
+        SELECT o.*,
+        u.username,
+        u.useravatar,
+        p.name AS producttitle,
+        p.coverlist AS productcover
+        FROM "orders" o
+        LEFT JOIN "user" u ON u.id = o.userid
+        LEFT JOIN product p ON p.id = o.productid
+        WHERE o.productid IN
+        <foreach collection="productIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="tradeStatus != null">AND o.tradestatus = #{tradeStatus}</if>
+        <if test="code != null and code != ''">AND o.code LIKE CONCAT('%', #{code}, '%')</if>
+        ORDER BY o.createtime DESC
+    </select>
+
+</mapper>
