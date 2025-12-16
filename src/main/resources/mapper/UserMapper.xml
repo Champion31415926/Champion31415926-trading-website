@@ -69,11 +69,7 @@
         </where>
         ORDER BY u.createtime DESC
         <if test="current != null and size != null">
-            LIMIT #{size} OFFSET
-            <choose>
-                <when test="current &gt; 1">${(current - 1) * size}</when>
-                <otherwise>0</otherwise>
-            </choose>
+            LIMIT #{size} OFFSET #{current}
         </if>
     </select>
 

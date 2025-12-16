@@ -39,7 +39,7 @@
             <if test="startTime != null and endTime != null">AND c.createtime BETWEEN #{startTime} AND #{endTime}</if>
         </where>
         ORDER BY c.id DESC
-        <if test="current != null and size != null">LIMIT #{size} OFFSET (#{current}-1)*#{size}</if>
+        <if test="current != null and size != null">LIMIT #{size} OFFSET #{current}</if>
     </select>
     <select id="queryCount" resultType="integer">
         SELECT COUNT(*) FROM content c
