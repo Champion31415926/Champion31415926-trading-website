@@ -3,50 +3,49 @@
     <div class="filter-section">
       <div class="filter-container">
         <el-input
-          v-model="contentQueryDto.name"
-          placeholder="Search Content Title"
-          clearable
-          size="large"
-          class="search-input"
-          @clear="fetchFreshData"
-          @keyup.enter="fetchFreshData"
+            v-model="contentQueryDto.name"
+            placeholder="Search Content Title"
+            clearable
+            size="large"
+            class="search-input"
+            @clear="fetchFreshData"
+            @keyup.enter="fetchFreshData"
         >
           <template #append>
             <el-button
-              type="primary"
-              class="customer"
-              icon="el-icon-search"
-              @click="fetchFreshData"
+                type="primary"
+                class="customer"
+                icon="el-icon-search"
+                @click="fetchFreshData"
             ></el-button>
           </template>
         </el-input>
+
+        <el-button
+            type="primary"
+            class="add-button"
+            icon="el-icon-plus"
+            size="large"
+            @click="addContent"
+        >
+          Post New Content
+        </el-button>
+
       </div>
     </div>
 
     <div class="content-list">
-      <el-empty
-        v-if="contentList.length === 0"
-        description="No content information available"
-      ></el-empty>
+      <el-empty v-if="contentList.length === 0" description="No content information available"></el-empty>
 
-      <transition-group
-        v-else
-        name="content-list"
-        tag="div"
-        class="content-grid"
-      >
+      <transition-group v-else name="content-list" tag="div" class="content-grid">
         <div
-          v-for="content in contentList"
-          :key="content.id"
-          class="content-card"
-          @click="viewContentDetail(content)"
+            v-for="content in contentList"
+            :key="content.id"
+            class="content-card"
+            @click="viewContentDetail(content)"
         >
           <div class="content-image-container">
-            <img
-              :src="getCoverImage(content)"
-              :alt="content.name"
-              class="content-image"
-            />
+            <img :src="getCoverImage(content)" :alt="content.name" class="content-image">
           </div>
 
           <div class="content-info">
@@ -93,8 +92,8 @@ export default {
     async fetchFreshData() {
       try {
         const res = await this.$axios.post(
-          "/content/query",
-          this.contentQueryDto
+            "/content/query",
+            this.contentQueryDto
         );
         if (res.data.code === 200) {
           this.contentList = res.data.data;
